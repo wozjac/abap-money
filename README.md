@@ -9,4 +9,7 @@ Simple money class for ABAP. Based on P type, length 9, decimals 4.
 Licensed under the [MIT license](http://opensource.org/licenses/MIT).
 
 # Author
-Feel free to contact me: wozjac@zoho.com or via LinkedIn (https://www.linkedin.com/in/jacek-wznk).
+Feel free to contact me:  
+- wozjac@zoho.com 
+- Twitter (https://twitter.com/jacekwoz)  
+- LinkedIn (https://www.linkedin.com/in/jacek-wznk)
