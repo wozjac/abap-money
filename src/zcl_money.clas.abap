@@ -39,20 +39,27 @@ CLASS zcl_money DEFINITION PUBLIC CREATE PUBLIC.
       "! @parameter amount | <p class="shorttext synchronized" lang="en">Money amount</p>
       "! @parameter database_amount | <p class="shorttext synchronized" lang="en">Money amount as SAP DB internal value</p>
       "! @parameter currency | <p class="shorttext synchronized" lang="en">Currency</p>
-      constructor IMPORTING amount          TYPE zif_money=>money_amount OPTIONAL
-                            database_amount TYPE zif_money=>money_amount OPTIONAL
-                            currency        TYPE waers.
+      constructor IMPORTING amount                  TYPE zif_money=>money_amount OPTIONAL
+                            database_amount         TYPE zif_money=>money_amount OPTIONAL
+                            database_value_decimals TYPE i DEFAULT 2
+                            currency                TYPE waers.
 
   PRIVATE SECTION.
     DATA:
-      amount          TYPE zif_money=>money_amount,
-      database_amount TYPE zif_money=>money_amount,
-      currency        TYPE waers.
+      amount                  TYPE zif_money=>money_amount,
+      database_amount         TYPE zif_money=>money_amount,
+      database_value_decimals TYPE i,
+      currency                TYPE waers.
 ENDCLASS.
 
 CLASS zcl_money IMPLEMENTATION.
   METHOD constructor.
-    DATA factor TYPE n LENGTH 5 VALUE '10000'.
+    DATA factor TYPE REF TO data.
+    DATA(lo_type_description) = cl_abap_elemdescr=>get_n( database_value_decimals + 1 ).
+    CREATE DATA factor TYPE HANDLE lo_type_description.
+    FIELD-SYMBOLS <factor> TYPE any.
+    ASSIGN factor->* TO <factor>.
+    <factor>+0(1) = 1.
 
     IF database_amount IS NOT INITIAL AND amount IS NOT INITIAL.
       RAISE EXCEPTION TYPE lcx_money_error
@@ -65,19 +72,19 @@ CLASS zcl_money IMPLEMENTATION.
     SELECT SINGLE currdec INTO @DATA(currency_decimals) FROM tcurx WHERE currkey = @me->currency.
 
     IF sy-subrc <> 0. "default 2 decimals
-      SHIFT factor BY 2 PLACES RIGHT.
+      SHIFT <factor> BY 2 PLACES RIGHT.
     ELSE.
-      SHIFT factor BY currency_decimals PLACES RIGHT.
+      SHIFT <factor> BY currency_decimals PLACES RIGHT.
     ENDIF.
 
     IF amount IS NOT INITIAL.
       me->amount = amount.
-      me->database_amount = amount / factor.
+      me->database_amount = amount / <factor>.
     ENDIF.
 
     IF database_amount IS NOT INITIAL.
       me->database_amount = database_amount.
-      me->amount = me->database_amount * factor.
+      me->amount = me->database_amount * <factor>.
     ENDIF.
   ENDMETHOD.
 
