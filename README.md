@@ -1,5 +1,6 @@
 # abap-money
-Simple money class for ABAP. Based on P type, length 9, decimals 4. 
+Simple money class for ABAP. Returned amount as P type, length 9, decimals 4. 
+Parameter *database_value_decimals* in the constructor sets the decimals of the raw mount value, default 2.
 
 ## Features:
 - easier work with SAP DB internal currency amounts
